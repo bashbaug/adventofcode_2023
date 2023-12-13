@@ -2,19 +2,11 @@ import sys
 
 def evaluate_forward(seq):
     new_seq = [seq[i + 1] - seq[i] for i in range(len(seq) - 1)]
-    #print('  --> new sequence is: {}'.format(new_seq))
-    if all(x == 0 for x in new_seq):
-        return seq[-1]
-    else:
-        return evaluate_forward(new_seq) + seq[-1]
+    return seq[-1] + (evaluate_forward(new_seq) if any(x != 0 for x in new_seq) else 0)
 
 def evaluate_backward(seq):
     new_seq = [seq[i + 1] - seq[i] for i in range(len(seq) - 1)]
-    #print('  --> new sequence is: {}'.format(new_seq))
-    if all(x == 0 for x in new_seq):
-        return seq[0]
-    else:
-        return seq[0] - evaluate_backward(new_seq)
+    return seq[0] - (evaluate_backward(new_seq) if any(x != 0 for x in new_seq) else 0)
 
 if __name__ == "__main__":
     with open(sys.argv[1]) as f:
