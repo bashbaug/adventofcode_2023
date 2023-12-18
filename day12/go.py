@@ -1,18 +1,73 @@
 import sys
 
-def do_count(record, counts, c):
-    if c >= len(record):
-        check = [len(x) for x in record.replace('.', ' ').split()]
-        if check == counts:
+def find_longest(record):
+    longest = []
+    for c in range(len(record)):
+        run = 0
+        for i in range(c, len(record)):
+            if record[i] == '.':
+                break
+            run = run + 1
+        longest.append(run)
+    return longest
+
+def find_min_remaining(record):
+    remaining = []
+    for c in range(len(record)):
+        started = False
+        count = 0
+        for i in range(c, len(record)):
+            if record[i] == '#':
+                started = True
+            if record[i] == '.' and started:
+                started = False
+                count = count + 1
+        if started:
+            count = count + 1
+        remaining.append(count)
+    return remaining
+
+# r is the working character
+# w is the working count
+def do_count(cache, record, counts, longest, remaining, r, c):
+    if (r, c) in cache:
+        return cache[(r, c)]
+
+    if c > len(counts):
+        return 0
+    
+    while r < len(record) and record[r] == '.':
+        r = r + 1
+
+    if r >= len(record):
+        if c == len(counts):
             return 1
         else:
             return 0
+        
+    if c + remaining[r] > len(counts):
+        return 0
 
-    if record[c] == '?':
-        check0 = record[:c] + '.' + record[c + 1:]
-        return do_count(check0, counts, c+1) + do_count(record, counts, c + 1)
+    alternate = 0
+    if record[r] == '?':
+        alternate = do_count(cache, record, counts, longest, remaining, r + 1, c)
 
-    return do_count(record, counts, c + 1)
+    if c >= len(counts):
+        cache[(r, c)] = alternate
+        return alternate
+
+    target = counts[c]
+    if longest[r] < target:
+        cache[(r, c)] = alternate
+        return alternate
+
+    if r + target < len(record) and record[r + target] == '#':
+        cache[(r, c)] = alternate
+        return alternate
+
+    alternate = alternate + do_count(cache, record, counts, longest, remaining, r + target + 1, c + 1)
+    cache[(r, c)] = alternate
+    return alternate
 
 if __name__ == "__main__":
     with open(sys.argv[1]) as f:
@@ -22,12 +77,12 @@ if __name__ == "__main__":
     for line in lines:
         record, counts = line.strip().split()
         counts = [int(x) for x in counts.split(',')]
-        print('checking record {}...'.format(record))
-        count = do_count(record, counts, 0)
-        print('  --> {} arrangements'.format(count))
+        longest = find_longest(record)
+        remaining = find_min_remaining(record)
+        count = do_count({}, record, counts, longest, remaining, 0, 0)
         total = total + count
-
-    print('total count for part one is: {}'.format(count))
+    
+    print('total count for part one is: {}'.format(total))
 
 
     total = 0
@@ -36,9 +91,9 @@ if __name__ == "__main__":
         record = record + '?' + record + '?' + record + '?' + record + '?' + record
         counts = [int(x) for x in counts.split(',')]
         counts = counts * 5
-        print('checking record {}...'.format(record))
-        count = do_count(record, counts, 0)
-        print('  --> {} arrangements'.format(count))
+        longest = find_longest(record)
+        remaining = find_min_remaining(record)
+        count = do_count({}, record, counts, longest, remaining, 0, 0)
         total = total + count
 
-    print('total count for part one is: {}'.format(count))
+    print('total count for part two is: {}'.format(total))
