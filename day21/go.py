@@ -52,20 +52,17 @@ if __name__ == "__main__":
     work_list_back1 = set([start_coord])
     count_back1 = 1
     count = 0
-    for i in range(5000):
+    points = []
+    for i in range(65 + 131 * 2 + 1):
         work_list = set()
         for r, c in work_list_back1:
-            if (board[(r-1) % num_rows][c % num_cols] == '.'): # and
-                #not (r-1, c) in work_list_back2):
+            if (board[(r-1) % num_rows][c % num_cols] == '.'):
                 work_list.add((r-1, c))
-            if (board[(r+1) % num_rows][c % num_cols] == '.'): # and
-                #not (r+1, c) in work_list_back2):
+            if (board[(r+1) % num_rows][c % num_cols] == '.'):
                 work_list.add((r+1, c))
-            if (board[r % num_rows][(c-1) % num_cols] == '.'): # and
-                #not (r, c-1) in work_list_back2):
+            if (board[r % num_rows][(c-1) % num_cols] == '.'):
                 work_list.add((r, c-1))
-            if (board[r % num_rows][(c+1) % num_cols] == '.'): # and
-                #not (r, c+1) in work_list_back2):
+            if (board[r % num_rows][(c+1) % num_cols] == '.'):
                 work_list.add((r, c+1))
         work_list = work_list.difference(work_list_back2)
         work_list_back2 = work_list_back1
@@ -76,6 +73,20 @@ if __name__ == "__main__":
         count_back1 = count
         #print('on step {} there are {} items on the work list'.format(i + 1, len(work_list)))
         #print('    work_list is {}'.format(work_list))
-        if i + 1 in [6, 10, 50, 100, 500, 1000, 5000]:
+        if (i + 1 - 65) % 131 == 0:
             print('after {} steps {} plots are reachable'.format(i + 1, count))
             print('   there are currently {} items on the work list'.format(len(work_list)))
+            points.append(count)
+
+    print('points are: {}'.format(points))
+
+    a = (points[2] - 2 * points[1] + points[0]) // 2
+    b = (-points[2] + 4 * points[1] - 3 * points[0]) // 2
+    c = points[0]
+
+    print('a = {}, b = {}, c = {}'.format(a, b, c))
+
+    x = (26501365 - 65) // 131
+
+    v = a * x * x + b * x + c
+    print('x = {}, v = {}'.format(x, v))
